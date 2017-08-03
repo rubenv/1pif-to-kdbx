@@ -4,13 +4,9 @@ import os
 import datetime
 import shutil
 import json
-import pprint
 
 from pykeepass import PyKeePass
 from urlparse import urlparse
-
-#until = 281
-until = 20000
 
 shutil.copyfile("in.kdbx", "out.kdbx")
 
@@ -37,7 +33,6 @@ def getGroup(item):
 
     label = groupLabels.get(item["typeName"])
     if not label:
-        pprint.pprint(item)
         raise Exception("Unknown type name {}".format(item["typeName"]))
 
     group = kp.add_group(kp.root_group, label)
@@ -58,7 +53,6 @@ def getField(item, designation):
 with open("in.1pif/data.1pif", "r") as fp:
     data = fp.read().strip().split("***5642bee8-a5ff-11dc-8314-0800200c9a66***")
 
-done = 0
 for line in data:
     if line.strip() == "":
         continue
@@ -68,9 +62,6 @@ for line in data:
         continue
 
     group = getGroup(item)
-    if done == until - 1:
-        pprint.pprint(item)
-        pprint.pprint(group)
 
     entry = kp.add_entry(group, item["title"], "", "")
     secure = item["secureContents"]
@@ -188,11 +179,5 @@ for line in data:
     # Dates
     entry.ctime = datetime.datetime.fromtimestamp(item["createdAt"])
     entry.mtime = datetime.datetime.fromtimestamp(item["updatedAt"])
-
-    done = done + 1
-    if done >= until:
-        print("Halting at {}".format(done))
-        print("-------------------------------------------------------------------------")
-        break
 
 kp.save()
